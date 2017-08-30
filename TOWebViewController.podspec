@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.author   = 'Tim Oliver'
   s.source   = { :git => 'https://github.com/TimOliver/TOWebViewController.git', :tag => s.version.to_s }
   s.requires_arc = true
-  s.platform = :ios, '5.1'
+  s.platform = :ios, '7.0'
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |core|
