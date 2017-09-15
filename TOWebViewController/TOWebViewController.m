@@ -259,22 +259,24 @@ _Pragma("clang diagnostic pop")
     
     //Create the web view
     if ([WKWebView class]) {
-        self.wkWebView = [[WKWebView alloc] initWithFrame:self.view.bounds];
-        self.wkWebView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        self.wkWebView.backgroundColor = [UIColor clearColor];
-        self.wkWebView.contentMode = UIViewContentModeRedraw;
-        self.wkWebView.opaque = YES;
-        self.wkWebView.navigationDelegate = self;
-        [self.view addSubview:self.wkWebView];
+        WKWebView *wkWebView = [[WKWebView alloc] initWithFrame:self.view.bounds];
+        wkWebView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        wkWebView.backgroundColor = [UIColor clearColor];
+        wkWebView.contentMode = UIViewContentModeRedraw;
+        wkWebView.opaque = YES;
+        wkWebView.navigationDelegate = self;
+        [self.view addSubview:wkWebView];
+        _wkWebView = wkWebView;
     } else {
-        self.webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
-        self.webView.delegate = self.progressManager;
-        self.webView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        self.webView.backgroundColor = [UIColor clearColor];
-        self.webView.scalesPageToFit = YES;
-        self.webView.contentMode = UIViewContentModeRedraw;
-        self.webView.opaque = YES;
-        [self.view addSubview:self.webView];
+        UIWebView *webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
+        webView.delegate = self.progressManager;
+        webView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        webView.backgroundColor = [UIColor clearColor];
+        webView.scalesPageToFit = YES;
+        webView.contentMode = UIViewContentModeRedraw;
+        webView.opaque = YES;
+        [self.view addSubview:webView];
+        _webView = webView;
     }
 
     CGFloat progressBarHeight = LOADING_BAR_HEIGHT;
@@ -441,11 +443,6 @@ _Pragma("clang diagnostic pop")
         return NO;
     
     return YES;
-}
-
-- (UIStatusBarStyle)preferredStatusBarStyle
-{
-    return UIStatusBarStyleDefault;
 }
 
 #pragma mark - Screen Rotation Interface -
