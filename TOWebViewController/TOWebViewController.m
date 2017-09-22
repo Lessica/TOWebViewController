@@ -1410,21 +1410,16 @@ _Pragma("clang diagnostic pop")
         
         __block NSString *pageViewPortContent = nil;
         
-        dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-        
-        dispatch_async(queue, ^{
-            
-            [self.wkWebView evaluateJavaScript:metaDataQuery completionHandler:^(id _Nullable result, NSError * _Nullable error) {
-                if ([result isKindOfClass:[NSString class]]) {
-                    pageViewPortContent = result;
-                    dispatch_semaphore_signal(semaphore);
-                }
-            }];
-            
-            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-            
-        });
+        __block BOOL finished = NO;
+        [self.wkWebView evaluateJavaScript:metaDataQuery completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+            if ([result isKindOfClass:[NSString class]]) {
+                pageViewPortContent = result;
+            }
+            finished = YES;
+        }];
+        while (!finished) {
+            [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        }
         
         if ([pageViewPortContent length] == 0)
             return NO;
@@ -1496,21 +1491,16 @@ _Pragma("clang diagnostic pop")
         //Pull the current background colour from the web view
         __block NSString *rgbString = nil;
         
-        dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-        
-        dispatch_async(queue, ^{
-            
-            [self.wkWebView evaluateJavaScript:@"window.getComputedStyle(document.body,null).getPropertyValue('background-color');" completionHandler:^(id _Nullable result, NSError * _Nullable error) {
-                if ([result isKindOfClass:[NSString class]]) {
-                    rgbString = result;
-                }
-                dispatch_semaphore_signal(semaphore);
-            }];
-            
-            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-            
-        });
+        __block BOOL finished = NO;
+        [self.wkWebView evaluateJavaScript:@"window.getComputedStyle(document.body,null).getPropertyValue('background-color');" completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+            if ([result isKindOfClass:[NSString class]]) {
+                rgbString = result;
+            }
+            finished = YES;
+        }];
+        while (!finished) {
+            [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        }
         
         //if it wasn't found, or if it isn't a proper rgb value, just return white as the default
         if ([rgbString length] == 0 || [rgbString rangeOfString:@"rgb"].location == NSNotFound)
