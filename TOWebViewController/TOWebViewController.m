@@ -260,9 +260,15 @@ _Pragma("clang diagnostic pop")
     //Create the web view
     if ([WKWebView class]) {
         WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
-        configuration.allowsInlineMediaPlayback = YES;
-        configuration.allowsAirPlayForMediaPlayback = YES;
-        configuration.allowsPictureInPictureMediaPlayback = YES;
+        if ([configuration respondsToSelector:@selector(allowsInlineMediaPlayback)]) {
+            configuration.allowsInlineMediaPlayback = YES;
+        }
+        if ([configuration respondsToSelector:@selector(allowsAirPlayForMediaPlayback)]) {
+            configuration.allowsAirPlayForMediaPlayback = YES;
+        }
+        if ([configuration respondsToSelector:@selector(allowsPictureInPictureMediaPlayback)]) {
+            configuration.allowsPictureInPictureMediaPlayback = YES;
+        }
         WKWebView *wkWebView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:configuration];
         wkWebView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         wkWebView.backgroundColor = [UIColor clearColor];
