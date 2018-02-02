@@ -56,15 +56,15 @@
 #define TOOLBAR_HEIGHT ((CGFloat)44.f)
 
 /* Hieght of the loading progress bar view */
-#define LOADING_BAR_HEIGHT ((CGFloat)2.f)        
+#define LOADING_BAR_HEIGHT ((CGFloat)2.f)
 
 #pragma mark -
 #pragma mark Hidden Properties/Methods
 @interface TOWebViewController () <UIActionSheetDelegate,
-                                   UIPopoverControllerDelegate,
-                                   MFMailComposeViewControllerDelegate,
-                                   MFMessageComposeViewControllerDelegate,
-                                   NJKWebViewProgressDelegate, CAAnimationDelegate, WKNavigationDelegate>
+UIPopoverControllerDelegate,
+MFMailComposeViewControllerDelegate,
+MFMessageComposeViewControllerDelegate,
+NJKWebViewProgressDelegate, CAAnimationDelegate, WKNavigationDelegate>
 {
     
     //The state of the UIWebView's scroll view before the rotation animation has started
@@ -180,7 +180,7 @@ _Pragma("clang diagnostic pop")
 {
     if (self = [super initWithCoder:aDecoder])
         [self setup];
-
+    
     return self;
 }
 
@@ -188,7 +188,7 @@ _Pragma("clang diagnostic pop")
 {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])
         [self setup];
-  
+    
     return self;
 }
 
@@ -232,7 +232,7 @@ _Pragma("clang diagnostic pop")
     
     //Set the initial default style as full screen (But this can be easily overridden)
     self.modalPresentationStyle = UIModalPresentationFullScreen;
-
+    
     //Set the URL request
     self.urlRequest = [[NSMutableURLRequest alloc] init];
 }
@@ -287,7 +287,7 @@ _Pragma("clang diagnostic pop")
         [self.view addSubview:webView];
         _webView = webView;
     }
-
+    
     CGFloat progressBarHeight = LOADING_BAR_HEIGHT;
     CGRect navigationBarBounds = self.navigationController.navigationBar.bounds;
     CGRect barFrame = CGRectMake(0, navigationBarBounds.size.height - progressBarHeight, navigationBarBounds.size.width, progressBarHeight);
@@ -342,10 +342,10 @@ _Pragma("clang diagnostic pop")
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
     //Show placehodler title until we work out the new one
     [self showPlaceholderTitle];
-
+    
     //remove the shadow that lines the bottom of the webview
     if (MINIMAL_UI == NO) {
         UIScrollView *scrollView = (self.webView ? self.webView.scrollView : self.wkWebView.scrollView);
@@ -365,13 +365,13 @@ _Pragma("clang diagnostic pop")
     if (self.showDoneButton && self.beingPresentedModally && !self.onTopOfNavigationControllerStack) {
         if (self.doneButtonTitle) {
             self.doneButton = [[UIBarButtonItem alloc] initWithTitle:self.doneButtonTitle style:UIBarButtonItemStyleDone
-                                                         target:self
-                                                         action:@selector(doneButtonTapped:)];
+                                                              target:self
+                                                              action:@selector(doneButtonTapped:)];
         }
         else {
             self.doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                                                                        target:self
-                                                                                        action:@selector(doneButtonTapped:)];
+                                                                            target:self
+                                                                            action:@selector(doneButtonTapped:)];
         }
         
         self.doneButton.tintColor = self.buttonTintColor;
@@ -487,11 +487,11 @@ _Pragma("clang diagnostic pop")
 #pragma mark State Tracking
 - (BOOL)compactPresentation
 {
-_Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-availability\"")
+    _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-availability\"")
     if (SIZE_CLASSES) {
         return (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact);
     }
-_Pragma("clang diagnostic pop")
+    _Pragma("clang diagnostic pop")
     
     return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone);
 }
@@ -504,7 +504,7 @@ _Pragma("clang diagnostic pop")
         return ([self.navigationController.viewControllers indexOfObject:self] == 0);
     else // Check if we're being presented modally directly
         return ([self presentingViewController] != nil);
-
+    
     return NO;
 }
 
@@ -538,7 +538,7 @@ _Pragma("clang diagnostic pop")
 - (void)layoutButtonsForCurrentSizeClass
 {
     [self.navigationController setToolbarHidden:(!self.compactPresentation || self.navigationButtonsHidden) animated:NO];
-        
+    
     //Reset the lot
     self.toolbarItems = nil;
     self.navigationItem.leftBarButtonItems = nil;
@@ -550,7 +550,7 @@ _Pragma("clang diagnostic pop")
         self.navigationItem.leftBarButtonItems = self.applicationLeftBarButtonItems;
         self.navigationItem.leftItemsSupplementBackButton = YES;
     }
-
+    
     //Handle iPhone Layout
     if (self.compactPresentation) {
         
@@ -747,7 +747,7 @@ _Pragma("clang diagnostic pop")
         [self setUpNavigationButtons];
     }
     
-     [self layoutButtonsForCurrentSizeClass];
+    [self layoutButtonsForCurrentSizeClass];
 }
 
 - (void)setButtonTintColor:(UIColor *)buttonTintColor
@@ -1120,7 +1120,7 @@ _Pragma("clang diagnostic pop")
     if (!self.url) {
         return;
     }
-_Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-availability\"")
+    _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-availability\"")
     // If we're on iOS 6 or above, we can use the super-duper activity view controller :)
     if (NSClassFromString(@"UIPresentationController") && NSClassFromString(@"UIPopoverPresentationController")) {
         NSArray *browserActivities = @[[TOActivitySafari new], [TOActivityChrome new]];
@@ -1156,13 +1156,13 @@ _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-a
             self.sharingPopoverController = [[UIPopoverController alloc] initWithContentViewController:activityViewController];
             self.sharingPopoverController.delegate = self;
             [self.sharingPopoverController presentPopoverFromBarButtonItem:self.actionButton permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
-
+            
 #pragma GCC diagnostic pop
         }
     }
     else //We must be on iOS 5
     {
-
+        
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         
@@ -1171,9 +1171,9 @@ _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-a
                                                         cancelButtonTitle:nil
                                                    destructiveButtonTitle:nil
                                                         otherButtonTitles:NSLocalizedStringFromTable(@"Copy URL", @"TOWebViewControllerLocalizable", @"Copy the URL"), nil];
-
+        
         NSInteger numberOfButtons = 1;
-
+        
         //Add Browser
         BOOL chromeIsInstalled = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"googlechrome://"]];
         NSString *browserMessage = NSLocalizedStringFromTable(@"Open in Safari", @"TOWebViewControllerLocalizable", @"Open in Safari");
@@ -1200,7 +1200,7 @@ _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-a
             [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Twitter", @"TOWebViewControllerLocalizable", @"Send a Tweet")];
             numberOfButtons++;
         }
-
+        
         
         //Add a cancel button if on iPhone
         if (self.compactPresentation) {
@@ -1212,9 +1212,9 @@ _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-a
             [actionSheet showFromRect:[(UIView *)sender frame] inView:[(UIView *)sender superview] animated:YES];
         }
         
-        #pragma clang diagnostic pop
+#pragma clang diagnostic pop
     }
-_Pragma("clang diagnostic pop")
+    _Pragma("clang diagnostic pop")
 }
 
 #pragma clang diagnostic push
@@ -1235,10 +1235,10 @@ _Pragma("clang diagnostic pop")
                 [self openMailDialog];
             else if ([MFMessageComposeViewController canSendText])
                 [self openMessageDialog];
-
+            
             else if ([TWTweetComposeViewController canSendTweet])
                 [self openTwitterDialog];
-
+            
         }
             break;
         case 3: //SMS or Twitter
@@ -1407,52 +1407,7 @@ _Pragma("clang diagnostic pop")
         
         return NO;
     } else {
-        //A bit of a crazy JavaScript that scans the HTML for a <meta name="viewport"> tag and retrieves its contents
-        NSString *metaDataQuery =   @"(function() {"
-        @"var metaTags = document.getElementsByTagName('meta');"
-        @"for (i=0; i<metaTags.length; i++) {"
-        @"if (metaTags[i].name=='viewport') {"
-        @"return metaTags[i].getAttribute('content');"
-        @"}"
-        @"}"
-        @"})()";
-        
-        __block NSString *pageViewPortContent = nil;
-        
-        __block BOOL finished = NO;
-        [self.wkWebView evaluateJavaScript:metaDataQuery completionHandler:^(id _Nullable result, NSError * _Nullable error) {
-            if ([result isKindOfClass:[NSString class]]) {
-                pageViewPortContent = result;
-            }
-            finished = YES;
-        }];
-        while (!finished) {
-            [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-        }
-        
-        if ([pageViewPortContent length] == 0)
-            return NO;
-        
-        //remove all white space and make sure it's all lower case
-        pageViewPortContent = [[pageViewPortContent stringByReplacingOccurrencesOfString:@" " withString:@""] lowercaseString];
-        
-        //check if the max page zoom is locked at 1
-        if ([pageViewPortContent rangeOfString:@"maximum-scale=1"].location != NSNotFound)
-            return YES;
-        
-        //check if zooming is intentionally disabled
-        if ([pageViewPortContent rangeOfString:@"user-scalable=no"].location != NSNotFound)
-            return YES;
-        
-        //check if width is set to align to the width of the device
-        if ([pageViewPortContent rangeOfString:@"width=device-width"].location != NSNotFound)
-            return YES;
-        
-        //check if initial scale is being forced (Apple seem to blanket apply this in Safari)
-        if ([pageViewPortContent rangeOfString:@"initial-scale=1"].location != NSNotFound)
-            return YES;
-        
-        return NO;
+        return YES;
     }
 }
 
@@ -1497,54 +1452,7 @@ _Pragma("clang diagnostic pop")
         
         return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
     } else {
-        //Pull the current background colour from the web view
-        __block NSString *rgbString = nil;
-        
-        __block BOOL finished = NO;
-        [self.wkWebView evaluateJavaScript:@"window.getComputedStyle(document.body,null).getPropertyValue('background-color');" completionHandler:^(id _Nullable result, NSError * _Nullable error) {
-            if ([result isKindOfClass:[NSString class]]) {
-                rgbString = result;
-            }
-            finished = YES;
-        }];
-        while (!finished) {
-            [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-        }
-        
-        //if it wasn't found, or if it isn't a proper rgb value, just return white as the default
-        if ([rgbString length] == 0 || [rgbString rangeOfString:@"rgb"].location == NSNotFound)
-            return [UIColor whiteColor];
-        
-        //Assuming now the input is either 'rgb(255, 0, 0)' or 'rgba(255, 0, 0, 255)'
-        
-        //remove the 'rgba' componenet
-        rgbString = [rgbString stringByReplacingOccurrencesOfString:@"rgba" withString:@""];
-        //conversely, remove the 'rgb' component
-        rgbString = [rgbString stringByReplacingOccurrencesOfString:@"rgb" withString:@""];
-        //remove the brackets
-        rgbString = [rgbString stringByReplacingOccurrencesOfString:@"(" withString:@""];
-        rgbString = [rgbString stringByReplacingOccurrencesOfString:@")" withString:@""];
-        //remove all spaces
-        rgbString = [rgbString stringByReplacingOccurrencesOfString:@" " withString:@""];
-        
-        //we should now have something like '0,0,0'. Split it up via the commas
-        NSArray *componenets = [rgbString componentsSeparatedByString:@","];
-        
-        //Final output componenets
-        CGFloat red, green, blue, alpha = 1.0f;
-        
-        //if the alpha value is 0, this indicates the RGB value wasn't actually set in the page, so just return white
-        if ([componenets count] < 3 || ([componenets count] >= 4 && [[componenets objectAtIndex:3] integerValue] == 0))
-            return [UIColor whiteColor];
-        
-        red     = (CGFloat)[[componenets objectAtIndex:0] integerValue] / 255.0f;
-        green   = (CGFloat)[[componenets objectAtIndex:1] integerValue] / 255.0f;
-        blue    = (CGFloat)[[componenets objectAtIndex:2] integerValue] / 255.0f;
-        
-        if ([componenets count] >= 4)
-            alpha = (CGFloat)[[componenets objectAtIndex:3] integerValue] / 255.0f;
-        
-        return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+        return [UIColor whiteColor];
     }
 }
 
@@ -1790,7 +1698,7 @@ _Pragma("clang diagnostic pop")
         CGFloat zoomScale = (scrollView.minimumZoomScale + scrollView.maximumZoomScale) * 0.5f;
         [scrollView setZoomScale:zoomScale animated:YES];
     }
-        
+    
     //hide the webview while the snapshot is animating
     if (self.webView) {
         self.webView.hidden = YES;
@@ -1939,7 +1847,7 @@ _Pragma("clang diagnostic pop")
     } else {
         self.wkWebView.hidden = NO;
     }
-
+    
     UIScrollView *scrollView = (self.webView ? self.webView.scrollView : self.wkWebView.scrollView);
     CGSize contentSize = scrollView.contentSize;
     CGPoint translatedContentOffset = _webViewState.contentOffset;
@@ -1954,11 +1862,11 @@ _Pragma("clang diagnostic pop")
     else //else, determine the magnitude we zoomed in/out by and translate the scroll offset to line it up properly
     {
         CGFloat magnitude = contentSize.width / _webViewState.contentSize.width;
-
+        
         //transform the translated offset
         translatedContentOffset.x *= magnitude;
         translatedContentOffset.y *= magnitude;
-
+        
         //if we were sufficiently scrolled from the top, make sure to line up to the middle, not the top
         if ((_webViewState.contentOffset.y + _webViewState.topEdgeInset) > FLT_EPSILON)
         {
