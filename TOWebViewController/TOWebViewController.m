@@ -288,11 +288,11 @@ _Pragma("clang diagnostic pop")
         _webView = webView;
     }
     
-    CGFloat progressBarHeight = LOADING_BAR_HEIGHT;
+//    CGFloat progressBarHeight = LOADING_BAR_HEIGHT;
     CGRect navigationBarBounds = self.navigationController.navigationBar.bounds;
-    CGRect barFrame = CGRectMake(0, navigationBarBounds.size.height - progressBarHeight, navigationBarBounds.size.width, progressBarHeight);
+    CGRect barFrame = CGRectMake(0, 0, navigationBarBounds.size.width, navigationBarBounds.size.height);
     self.progressView = [[NJKWebViewProgressView alloc] initWithFrame:barFrame];
-    self.progressView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+    self.progressView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     if (self.loadingBarTintColor)
         self.progressView.progressBarView.backgroundColor = self.loadingBarTintColor;
     
@@ -397,7 +397,12 @@ _Pragma("clang diagnostic pop")
     self.gradientLayer.frame = self.view.bounds;
     
     //Add the progress bar
-    [self.navigationController.navigationBar addSubview:self.progressView];
+    UINavigationBar *navigationBar = self.navigationController.navigationBar;
+    if (navigationBar.subviews.count > 0) {
+        [navigationBar insertSubview:self.progressView atIndex:1];
+    } else {
+        [navigationBar insertSubview:self.progressView atIndex:0];
+    }
     [self.progressView setProgress:0.0f];
     
     //Layout the buttons
