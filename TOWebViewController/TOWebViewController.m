@@ -1116,105 +1116,107 @@ _Pragma("clang diagnostic pop")
 #pragma mark Action Item Event Handlers
 - (void)actionButtonTapped:(id)sender
 {
-    //Do nothing if there is no url for action
-    if (!self.url) {
-        return;
-    }
-    _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-availability\"")
-    // If we're on iOS 6 or above, we can use the super-duper activity view controller :)
-    if (NSClassFromString(@"UIPresentationController") && NSClassFromString(@"UIPopoverPresentationController")) {
-        NSArray *browserActivities = @[[TOActivitySafari new], [TOActivityChrome new]];
-        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.url] applicationActivities:browserActivities];
-        activityViewController.modalPresentationStyle = UIModalPresentationPopover;
-        activityViewController.popoverPresentationController.barButtonItem = self.actionButton;
-        [self presentViewController:activityViewController animated:YES completion:nil];
-    }
-    else if (NSClassFromString(@"UIActivityViewController"))
-    {
-        NSArray *browserActivities = @[[TOActivitySafari new], [TOActivityChrome new]];
-        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.url] applicationActivities:browserActivities];
-        
-        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
-        {
-            //If we're on an iPhone, we can just present it modally
+    if (@available(iOS 9.0, *)) {
+        //Do nothing if there is no url for action
+        if (!self.url) {
+            return;
+        }
+        _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wpartial-availability\"")
+        // If we're on iOS 6 or above, we can use the super-duper activity view controller :)
+        if (NSClassFromString(@"UIPresentationController") && NSClassFromString(@"UIPopoverPresentationController")) {
+            NSArray *browserActivities = @[[TOActivitySafari new], [TOActivityChrome new]];
+            UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.url] applicationActivities:browserActivities];
+            activityViewController.modalPresentationStyle = UIModalPresentationPopover;
+            activityViewController.popoverPresentationController.barButtonItem = self.actionButton;
             [self presentViewController:activityViewController animated:YES completion:nil];
         }
-        else
+        else if (NSClassFromString(@"UIActivityViewController"))
         {
-            //UIPopoverController requires we retain our own instance of it.
-            //So if we somehow have a prior instance, clean it out
-            if (self.sharingPopoverController)
+            NSArray *browserActivities = @[[TOActivitySafari new], [TOActivityChrome new]];
+            UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.url] applicationActivities:browserActivities];
+            
+            if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
             {
-                [self.sharingPopoverController dismissPopoverAnimated:NO];
-                self.sharingPopoverController = nil;
+                //If we're on an iPhone, we can just present it modally
+                [self presentViewController:activityViewController animated:YES completion:nil];
+            }
+            else
+            {
+                //UIPopoverController requires we retain our own instance of it.
+                //So if we somehow have a prior instance, clean it out
+                if (self.sharingPopoverController)
+                {
+                    [self.sharingPopoverController dismissPopoverAnimated:NO];
+                    self.sharingPopoverController = nil;
+                }
+                
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+                
+                //Create the sharing popover controller
+                self.sharingPopoverController = [[UIPopoverController alloc] initWithContentViewController:activityViewController];
+                self.sharingPopoverController.delegate = self;
+                [self.sharingPopoverController presentPopoverFromBarButtonItem:self.actionButton permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+                
+#pragma GCC diagnostic pop
+            }
+        }
+        else //We must be on iOS 5
+        {
+            
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+            
+            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+                                                                     delegate:self
+                                                            cancelButtonTitle:nil
+                                                       destructiveButtonTitle:nil
+                                                            otherButtonTitles:NSLocalizedStringFromTable(@"Copy URL", @"TOWebViewControllerLocalizable", @"Copy the URL"), nil];
+            
+            NSInteger numberOfButtons = 1;
+            
+            //Add Browser
+            BOOL chromeIsInstalled = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"googlechrome://"]];
+            NSString *browserMessage = NSLocalizedStringFromTable(@"Open in Safari", @"TOWebViewControllerLocalizable", @"Open in Safari");
+            if (chromeIsInstalled)
+                browserMessage = NSLocalizedStringFromTable(@"Open in Chrome", @"TOWebViewControllerLocalizable", @"Open in Chrome");
+            
+            [actionSheet addButtonWithTitle:browserMessage];
+            numberOfButtons++;
+            
+            //Add Email
+            if ([MFMailComposeViewController canSendMail]) {
+                [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Mail", @"TOWebViewControllerLocalizable", @"Send Email")];
+                numberOfButtons++;
             }
             
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+            //Add SMS
+            if ([MFMessageComposeViewController canSendText]) {
+                [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Message", @"TOWebViewControllerLocalizable", @"Send iMessage")];
+                numberOfButtons++;
+            }
             
-            //Create the sharing popover controller
-            self.sharingPopoverController = [[UIPopoverController alloc] initWithContentViewController:activityViewController];
-            self.sharingPopoverController.delegate = self;
-            [self.sharingPopoverController presentPopoverFromBarButtonItem:self.actionButton permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+            //Add Twitter
+            if ([TWTweetComposeViewController canSendTweet]) {
+                [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Twitter", @"TOWebViewControllerLocalizable", @"Send a Tweet")];
+                numberOfButtons++;
+            }
             
-#pragma GCC diagnostic pop
-        }
-    }
-    else //We must be on iOS 5
-    {
-        
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-        
-        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
-                                                                 delegate:self
-                                                        cancelButtonTitle:nil
-                                                   destructiveButtonTitle:nil
-                                                        otherButtonTitles:NSLocalizedStringFromTable(@"Copy URL", @"TOWebViewControllerLocalizable", @"Copy the URL"), nil];
-        
-        NSInteger numberOfButtons = 1;
-        
-        //Add Browser
-        BOOL chromeIsInstalled = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"googlechrome://"]];
-        NSString *browserMessage = NSLocalizedStringFromTable(@"Open in Safari", @"TOWebViewControllerLocalizable", @"Open in Safari");
-        if (chromeIsInstalled)
-            browserMessage = NSLocalizedStringFromTable(@"Open in Chrome", @"TOWebViewControllerLocalizable", @"Open in Chrome");
-        
-        [actionSheet addButtonWithTitle:browserMessage];
-        numberOfButtons++;
-        
-        //Add Email
-        if ([MFMailComposeViewController canSendMail]) {
-            [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Mail", @"TOWebViewControllerLocalizable", @"Send Email")];
-            numberOfButtons++;
-        }
-        
-        //Add SMS
-        if ([MFMessageComposeViewController canSendText]) {
-            [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Message", @"TOWebViewControllerLocalizable", @"Send iMessage")];
-            numberOfButtons++;
-        }
-        
-        //Add Twitter
-        if ([TWTweetComposeViewController canSendTweet]) {
-            [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Twitter", @"TOWebViewControllerLocalizable", @"Send a Tweet")];
-            numberOfButtons++;
-        }
-        
-        
-        //Add a cancel button if on iPhone
-        if (self.compactPresentation) {
-            [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Cancel", @"TOWebViewControllerLocalizable", @"Cancel")];
-            [actionSheet setCancelButtonIndex:numberOfButtons];
-            [actionSheet showInView:self.view];
-        }
-        else {
-            [actionSheet showFromRect:[(UIView *)sender frame] inView:[(UIView *)sender superview] animated:YES];
-        }
-        
+            
+            //Add a cancel button if on iPhone
+            if (self.compactPresentation) {
+                [actionSheet addButtonWithTitle:NSLocalizedStringFromTable(@"Cancel", @"TOWebViewControllerLocalizable", @"Cancel")];
+                [actionSheet setCancelButtonIndex:numberOfButtons];
+                [actionSheet showInView:self.view];
+            }
+            else {
+                [actionSheet showFromRect:[(UIView *)sender frame] inView:[(UIView *)sender superview] animated:YES];
+            }
+            
 #pragma clang diagnostic pop
+        }
+        _Pragma("clang diagnostic pop")
     }
-    _Pragma("clang diagnostic pop")
 }
 
 #pragma clang diagnostic push
