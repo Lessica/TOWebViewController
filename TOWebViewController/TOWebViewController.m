@@ -208,9 +208,11 @@ _Pragma("clang diagnostic pop")
 #pragma mark - Setup -
 - (NSURL *)cleanURL:(NSURL *)url
 {
-    //If no URL scheme was supplied, defer back to HTTP.
-    if (url.scheme.length == 0) {
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@", [url absoluteString]]];
+    if (NO == [url isFileURL]) {
+        //If no URL scheme was supplied, defer back to HTTP.
+        if (url.scheme.length == 0) {
+            url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@", [url absoluteString]]];
+        }
     }
     
     return url;
@@ -258,7 +260,7 @@ _Pragma("clang diagnostic pop")
     }
     
     //Create the web view
-    if ([WKWebView class]) {
+    if (@available(iOS 9.0, *)) {
         WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
         if ([configuration respondsToSelector:@selector(allowsInlineMediaPlayback)]) {
             configuration.allowsInlineMediaPlayback = YES;
@@ -415,17 +417,22 @@ _Pragma("clang diagnostic pop")
 {
     [super viewDidAppear:animated];
     //start loading the initial page
+    NSURL *url = self.url;
     if (self.webView) {
-        if (self.url && self.webView.request == nil)
+        if (url && self.webView.request == nil)
         {
-            [self.urlRequest setURL:self.url];
+            [self.urlRequest setURL:url];
             [self.webView loadRequest:self.urlRequest];
         }
     } else {
-        if (self.url && self.wkWebView.URL == nil)
+        if (url && self.wkWebView.URL == nil)
         {
-            [self.urlRequest setURL:self.url];
-            [self.wkWebView loadRequest:self.urlRequest];
+            [self.urlRequest setURL:url];
+            if ([url isFileURL] && [self.wkWebView respondsToSelector:@selector(loadFileURL:allowingReadAccessToURL:)]) {
+                [self.wkWebView loadFileURL:url allowingReadAccessToURL:[url URLByDeletingLastPathComponent]];
+            } else {
+                [self.wkWebView loadRequest:self.urlRequest];
+            }
         }
     }
 }
@@ -677,20 +684,25 @@ _Pragma("clang diagnostic pop")
     if (self.url == url)
         return;
     
-    _url = [self cleanURL:url];
+    NSURL *cleanedURL = [self cleanURL:url];
+    _url = cleanedURL;
     
     if (self.webView) {
         if (self.webView.loading)
             [self.webView stopLoading];
         
-        [self.urlRequest setURL:self.url];
+        [self.urlRequest setURL:cleanedURL];
         [self.webView loadRequest:self.urlRequest];
     } else {
         if (self.wkWebView.loading)
             [self.wkWebView stopLoading];
         
-        [self.urlRequest setURL:self.url];
-        [self.wkWebView loadRequest:self.urlRequest];
+        [self.urlRequest setURL:cleanedURL];
+        if ([cleanedURL isFileURL] && [self.wkWebView respondsToSelector:@selector(loadFileURL:allowingReadAccessToURL:)]) {
+            [self.wkWebView loadFileURL:cleanedURL allowingReadAccessToURL:[cleanedURL URLByDeletingLastPathComponent]];
+        } else {
+            [self.wkWebView loadRequest:self.urlRequest];
+        }
     }
     
     [self showPlaceholderTitle];
@@ -1093,9 +1105,14 @@ _Pragma("clang diagnostic pop")
             //it nullifies webView.request, which causes [webView reload] to stop working.
             //This checks to see if the webView request URL is nullified, and if so, tries to load
             //off our stored self.url property instead
-            if (self.wkWebView.URL.absoluteString.length == 0 && self.url)
+            NSURL *url = self.url;
+            if (self.wkWebView.URL.absoluteString.length == 0 && url)
             {
-                [self.wkWebView loadRequest:self.urlRequest];
+                if ([url isFileURL] && [self.wkWebView respondsToSelector:@selector(loadFileURL:allowingReadAccessToURL:)]) {
+                    [self.wkWebView loadFileURL:url allowingReadAccessToURL:[url URLByDeletingLastPathComponent]];
+                } else {
+                    [self.wkWebView loadRequest:self.urlRequest];
+                }
             }
             else {
                 [self.wkWebView reload];
