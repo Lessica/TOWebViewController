@@ -384,9 +384,7 @@ _Pragma("clang diagnostic pop")
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    if (self.wkWebView) {
-        [self.wkWebView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
-    }
+    [self.wkWebView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
     
     //Capture the present navigation controller state to restore at the end
     if (self.navigationController && !self.capturedNavigationControllerState) {
@@ -440,9 +438,6 @@ _Pragma("clang diagnostic pop")
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    if (self.wkWebView) {
-        [self.wkWebView removeObserver:self forKeyPath:@"estimatedProgress"];
-    }
     
     if (self.beingPresentedModally == NO) {
         [self.navigationController setToolbarHidden:self.hideToolbarOnClose animated:animated];
@@ -455,6 +450,7 @@ _Pragma("clang diagnostic pop")
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
+    [self.wkWebView removeObserver:self forKeyPath:@"estimatedProgress"];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
