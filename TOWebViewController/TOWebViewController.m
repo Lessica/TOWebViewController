@@ -173,7 +173,9 @@ _Pragma("clang diagnostic pop")
 // -------------------------------------------------------
 
 #pragma mark - Class Implementation -
-@implementation TOWebViewController
+@implementation TOWebViewController {
+    BOOL _observerAdded;
+}
 
 #pragma mark - Class Creation -
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
@@ -384,7 +386,11 @@ _Pragma("clang diagnostic pop")
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self.wkWebView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
+    if (!_observerAdded && self.wkWebView)
+    {
+        [self.wkWebView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
+        _observerAdded = YES;
+    }
     
     //Capture the present navigation controller state to restore at the end
     if (self.navigationController && !self.capturedNavigationControllerState) {
@@ -450,7 +456,10 @@ _Pragma("clang diagnostic pop")
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-    [self.wkWebView removeObserver:self forKeyPath:@"estimatedProgress"];
+    if (_observerAdded) {
+        [self.wkWebView removeObserver:self forKeyPath:@"estimatedProgress"];
+        _observerAdded = NO;
+    }
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
